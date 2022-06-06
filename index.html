@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Map Design</title>
+    <title>Map of Bike Racks in U-District</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css" rel="stylesheet">
@@ -65,11 +65,62 @@
         #menu a.active:hover {
             background: #3074a4;
         }
+
+        #title {
+            position: absolute;
+            width: 25%;
+            background: #fff;
+            padding: 10px 20px 10px 10px;
+            border-radius: 3px;
+
+            font-family: 'Open Sans', sans-serif;
+            top: 0;
+            left: 0;
+            margin-top: 20px;
+            margin-left: 80px;
+            padding: 10px 20px 10px 10px;
+            z-index: 99;
+        }
+
+        h1 {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        h2 {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+        }
     </style>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js"></script>
 </head>
 
 <body>
+    <div id="title">
+        <h1>Bike Racks in U-District</h1>
+        <p>Due to size constraints, this map is limited to the extent of U-District.<br>
+            <br>
+            You may explore each of the three maps:
+        </p>
+        <ul>
+            <li>Minimalist Tile Basemap</li>
+            <li>Points of Bike Racks</li>
+            <li>Minimalist Tile Basemap and Bike Rack Points</li>
+            <li>Fully Featured Map of Bike Racks in U-Distrct colored for quality and sized for quantity</li>
+        </ul>
+        <h2>
+            Sources
+        </h2>
+        <ul>
+            <li><a href="https://data-seattlecitygis.opendata.arcgis.com/datasets/SeattleCityGIS::bike-racks/about">City of Seattle</a></li>
+            <li><a href="https://github.com/jakobzhao/geog458/tree/master/labs/lab04">jakobzhao/geog458</a></li>
+            <li><a href="https://www.mapbox.com/">Mapbox</a></li>
+        </ul>
+    </div>
     <nav id="menu"></nav>
     <div id='map'></div>
     <script type="text/javascript">
@@ -78,8 +129,8 @@
         let map = new mapboxgl.Map({
             container: 'map', // container ID
             style: 'mapbox://styles/mapbox/dark-v10',
-            zoom: 12, // starting zoom
-            center: [-122.2559435, 47.6002614] // starting center
+            zoom: 15, // starting zoom
+            center: [-122.312739, 47.656217] // starting center 47.658230, -122.312694
         });
 
         map.on('load', () => { //simplifying the function statement: arrow with brackets to define a function
@@ -87,21 +138,39 @@
             map.addSource('uw-tiles', {
                 'type': 'raster',
                 'tiles': [
-                    'assets/uw/{z}/{x}/{y}.png'
+                    'tiles/1uw/{z}/{x}/{y}.png'
                 ],
                 'tileSize': 256,
-                'attribution': 'Map tiles designed by Bo Zhao</a>'
+                'attribution': 'Map tiles designed by Alex Friedberg</a>'
             });
 
-            map.addSource('lgbtq-tiles', {
+            map.addSource('bike-tiles', {
                 'type': 'raster',
                 'tiles': [
-                    'assets/lgbtq/{z}/{x}/{y}.png'
+                    'tiles/2bike/{z}/{x}/{y}.png'
                 ],
                 'tileSize': 256,
-                'attribution': 'Map tiles designed by Bo Zhao'
+                'attribution': 'Map tiles designed by Alex Friedberg'
             });
 
+            map.addSource('smallmap-tiles', {
+                'type': 'raster',
+                'tiles': [
+                    'tiles/3map/{z}/{x}/{y}.png'
+                ],
+                'tileSize': 256,
+                'attribution': 'Map tiles designed by Alex Friedberg</a>'
+            });
+
+            map.addSource('bigmap-tiles', {
+                'type': 'raster',
+                'tiles': [
+                    'tiles/4map/{z}/{x}/{y}.png'
+                ],
+                'tileSize': 256,
+                'attribution': 'Map tiles designed by Alex Friedberg</a>'
+            });
+            //1
             map.addLayer({
                 'id': 'uw',
                 'type': 'raster',
@@ -110,15 +179,36 @@
                 },
                 'source': 'uw-tiles'
             });
-
+            //2
             map.addLayer({
-                'id': 'lgbtq',
+                'id': 'bike-racks',
                 'type': 'raster',
                 'layout': {
                     'visibility': 'none'
                 },
-                'source': 'lgbtq-tiles'
+                'source': 'bike-tiles'
             });
+            //3
+            map.addLayer({
+                'id': 'smallmap',
+                'type': 'raster',
+                'layout': {
+                    'visibility': 'none'
+                },
+                'source': 'smallmap-tiles'
+            });
+            //4
+            map.addLayer({
+                'id': 'bigmap',
+                'type': 'raster',
+                'layout': {
+                    'visibility': 'none'
+                },
+                'source': 'bigmap-tiles'
+            });
+
+            map.addControl(new mapboxgl.NavigationControl(), "top-left");
+
 
         });
 
@@ -126,12 +216,12 @@
         // After the last frame rendered before the map enters an "idle" state.
         map.on('idle', () => {
             // If these two layers were not added to the map, abort
-            if (!map.getLayer('uw') || !map.getLayer('lgbtq')) {
+            if (!map.getLayer('uw') || !map.getLayer('bike-racks') || !map.getLayer('smallmap') || !map.getLayer('bigmap')) {
                 return;
             }
 
             // Enumerate ids of the layers.
-            const toggleableLayerIds = ['uw', 'lgbtq'];
+            const toggleableLayerIds = ['uw', 'bike-racks', 'smallmap', 'bigmap'];
 
             // Set up the corresponding toggle button for each layer.
             for (const id of toggleableLayerIds) {
